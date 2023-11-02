@@ -1,0 +1,35 @@
+version: '3'
+services:
+    # Configuration for Proxy+Hub
+    jupyterhub:
+        build: jupyterhub
+        image: jupyterhub_img
+        container_name: jupyterhub
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - jupyterhub_data:/srv/jupyterhub
+        environment:
+            DOCKER_JUPYTER_IMAGE: jupyterlab_img
+            DOCKER_NETWORK_NAME: ${COMPOSE_PROJECT_NAME}_jupyter
+            HUB_IP: jupyterhub_hub
+        restart: on-failure
+        networks:
+            default:
+            jupyter:
+                aliases:
+                    - jupyterhub_hub
+        ports:
+            - 8000:8000
+    # Configuration for the single-user servers
+    jupyterlab:
+        build: jupyterlab
+        image: jupyterlab_img
+        network_mode: none
+        command: echo
+
+volumes:
+    jupyterhub_data:
+    
+networks:
+    jupyter:
+        internal: true
